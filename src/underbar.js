@@ -236,11 +236,26 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+
+    _.each(arguments, function(item){
+      for(var key in item){
+        obj[key] = item[key];
+      }
+    });
+    return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    _.each(arguments, function(item){
+      for(var key in item){
+        if(!(key in obj)){
+          obj[key] = item[key];
+        }
+      }
+    });
+    return obj;
   };
 
 
@@ -284,17 +299,26 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func){
-    var args=[];
     var cache=[];
-     for (var i in arguments) {
- 	     if(typeof arguments[i] !== 'function')
-        args.push(arguments[i]);
-     }
-     if(!cache[args])
-      cache[args]=func.apply(args);
 
-     return cache[args];
-   };
+    return function () {
+      console.log('arguments', arguments);
+      var args=[];
+
+      for (var i in arguments) {
+        if(typeof arguments[i] !== 'function' && arguments.length > 1)
+         args.push((arguments[i]));
+         console.log('args', args);
+      }
+      if(!cache[args]) {
+        cache[args]=func.apply(this, args);
+        console.log('cache[args]', cache[args]);
+        console.log('cache', cache);
+        return cache[args];
+      }
+    };
+  };
+
 
   // Delays a function for the given number of milliseconds, and then calls
   // it with the arguments supplied.
@@ -303,6 +327,10 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    var call = Array.prototype.slice.call(arguments, 2);
+    return setTimeout(function(){
+      func.apply(this, call);
+    }, wait);
   };
 
 
@@ -317,7 +345,17 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
-  };
+    var array = array.slice();
+    var newArray = [];
+    var i = 0;
+      while(array.length>0){
+       newArray[i] = array[Math.floor(Math.random() * array.length)];
+       array.splice(array.indexOf(newArray[i]),1);
+       i++;
+      }
+    return newArray;
+ };
+
 
 
   /**
@@ -331,6 +369,8 @@
   // Calls the method named by functionOrKey on each value in the list.
   // Note: You will need to learn a bit about .apply to complete this.
   _.invoke = function(collection, functionOrKey, args) {
+
+
   };
 
   // Sort the object's values by a criterion produced by an iterator.
